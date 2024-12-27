@@ -50,6 +50,93 @@ void Planet::TryToCreateFloodFillMap(Utils::ImageData & imgDataIn, Utils::ImageD
     }
 }
 
+bool IsPointInsidePolygon(const glm::vec2& point, const std::vector<glm::vec2>& polygon) {
+    int intersections = 0;
+    size_t n = polygon.size();
+
+    for (size_t i = 0; i < n; i++) {
+        glm::vec2 v1 = polygon[i];
+        glm::vec2 v2 = polygon[(i + 1) % n];  // Wrap around to the first vertex
+
+        // Check if point lies between the y-range of the edge
+        if ((point.y > v1.y) != (point.y > v2.y)) {
+            // Calculate x-coordinate of the intersection point
+            float intersectX = (v2.x - v1.x) * (point.y - v1.y) / (v2.y - v1.y) + v1.x;
+
+            // Check if point is to the left of the intersection point
+            if (point.x < intersectX) {
+                intersections++;
+            }
+        }
+    }
+
+    // Odd number of intersections means the point is inside
+    return (intersections % 2) == 1;
+}
+
+void Planet::TryToCreateFloodFillMapTO_DELETE(Utils::ImageData& imgDataIn, Utils::ImageData& imgDataOut, std::vector<glm::vec2> vecs, glm::vec3 color)
+{
+    std::vector<glm::vec2> vecsi;
+    for (const auto& element : vecs)
+    {
+        vecsi.push_back(glm::vec2(
+            (int)(element.y * imgDataIn.h),
+            (int)(element.x * imgDataIn.w   )
+        ));
+    }
+
+    std::queue<glm::vec2> queueOfPoints;
+    std::vector<std::vector<bool>> visited(imgDataIn.h, std::vector<bool>(imgDataIn.w, false));
+    queueOfPoints.push(vecsi[0]);
+
+    auto getPixelAt = [&](const Utils::ImageData& imgData, int x, int y) {
+        return &imgData.data[x * imgData.nrChannels + (y * imgData.nrChannels * imgData.w)];
+    };
+
+    auto setPixel = [&](unsigned char* pixel, glm::vec3 color) {
+        pixel[0] = static_cast<int>(color.x);
+    };
+
+    auto evalPixel = [&](unsigned char* pixel) {
+        return *pixel <= 5;
+    };
+
+    uint8_t* data = imgDataIn.data;
+
+    glm::vec2 dirs[] = {
+        glm::vec2(1,0),
+        glm::vec2(-1,0),
+        glm::vec2(0,1),
+        glm::vec2(0,-1),
+    };
+
+
+    while (!queueOfPoints.empty())
+    {
+        glm::vec2 point = queueOfPoints.front();
+        queueOfPoints.pop();
+
+        unsigned char* data = getPixelAt(imgDataOut, point.x, point.y);
+        setPixel(data, color);
+
+        for (const glm::vec2& dir : dirs)
+        {
+            glm::vec2 pointNew = point + dir;
+            unsigned char* pixel = getPixelAt(imgDataIn, pointNew.x, pointNew.y);
+            if (!visited[pointNew.y][pointNew.x] && evalPixel(pixel) && IsPointInsidePolygon(pointNew, vecsi))
+            {
+                visited[pointNew.y][pointNew.x] = true;
+                queueOfPoints.push(pointNew);
+            }
+        }
+    }
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, imgDataIn.w, imgDataIn.h, 0, GL_RED, GL_UNSIGNED_BYTE, mStatesImgData.data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+
 void Planet::SetupRenderData()
 {
     glGenTextures(1, &texture);
@@ -118,8 +205,6 @@ void Planet::SetupRenderData()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    stbi_image_free(data);
 }
 
 void Planet::GenerateSphere(float radius, int sectorCount, int stackCount, std::vector<float>& vertices, std::vector<int>& indices) {

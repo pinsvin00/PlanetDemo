@@ -12,9 +12,9 @@
 #include "Planet.h"
 #include <cmath>
 #include <queue>
+#include <optional>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_callback_camera_swipe(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
@@ -38,6 +38,9 @@ float fov = 90.0f;
 double thetaPlace = 0.0f;
 double phiPlace = 0.0f;
 bool placed = false;
+
+bool rightMouseButtonPressed = false;
+
 double lastTimePlaced = 0.0;
 
 double swipeCameraRadius = 15.0;
@@ -53,6 +56,108 @@ glm::vec2 sphericalToTexture(double theta, double phi) {
     double s = theta / glm::pi<float>();
     double t = phi / (2 * glm::pi<float>());
     return glm::vec2(t, s);
+}
+
+void sphericalVectorToAngularPosition(glm::vec3 point, double& theta, double& phi) {
+    float x = point.x;
+    float y = point.y;
+    float z = point.z;
+
+    float r = std::sqrt(x * x + y * y + z * z);
+
+    // Azimuth (theta)
+    theta = std::atan2(y, x);
+    if (theta < 0) theta += 2.0f * glm::pi<float>();  // Ensure theta is in [0, 2*pi]
+
+    // Elevation (phi)
+    phi = std::acos(z / r);  // acos returns value in [0, pi]
+    phi = std::fmax(0.0f, phi);    // Clamp to avoid rare negative results
+}
+
+glm::vec3 GetMouseWorldPosition(float mouseX, float mouseY,
+    glm::mat4 projection, glm::mat4 view,
+    glm::vec2 screenSize) {
+    // Step 1: Normalize mouse coordinates to [-1, 1]
+    float x = (2.0f * mouseX) / screenSize.x - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / screenSize.y;  // Invert Y axis
+    float z = 1.0f;  // Assume the mouse is at the far plane initially
+
+    glm::vec3 ndcPos = glm::vec3(x, y, z);
+
+    // Step 2: Create homogeneous clip coordinates
+    glm::vec4 clipCoords = glm::vec4(ndcPos.x, ndcPos.y, -1.0f, 1.0f);
+
+    // Step 3: Unproject by multiplying with the inverse of the combined matrix
+    glm::mat4 invViewProj = glm::inverse(projection * view);
+    glm::vec4 worldPos = invViewProj * clipCoords;
+
+    // Step 4: Perspective divide to get actual world position
+    worldPos /= worldPos.w;
+
+    return glm::vec3(worldPos);
+}
+
+
+std::optional<glm::vec3> mousePositionToThePlanet(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view)
+{
+    double mouseX, mouseY;
+    glfwGetCursorPos(window, &mouseX, &mouseY);
+
+    glm::vec3 rayOrigin = cameraPos;
+    glm::vec3 mousePosition = GetMouseWorldPosition(mouseX, mouseY, projection, view, glm::vec2(SCR_WIDTH, SCR_HEIGHT));
+    glm::vec3 rayDirection = glm::normalize(mousePosition-rayOrigin);
+
+    glm::vec3 sphereCenter = glm::vec3(0.0f, 0.0f, 0.0f); // Sphere center position
+    glm::vec3 startPosition = rayOrigin - sphereCenter;
+
+    float a = glm::dot(rayDirection, rayDirection);
+    float b = 2.0f * glm::dot(startPosition, rayDirection);
+    float c = glm::dot(startPosition, startPosition) - planetRadius * planetRadius;
+    float discriminant = b * b - 4 * a * c;
+
+    if (discriminant < 0)
+        return {};
+
+    float distsqrt = sqrt(discriminant);
+    float q;
+
+    if (b < 0)
+        q = (-b - distsqrt) / 2.0;
+    else
+        q = (-b + distsqrt) / 2.0;
+
+    float t0 = q / a;
+    float t1 = c / q;
+
+    //if t0 > t1 then swap them.
+    if (t0 > t1)
+    {
+        float temp = t0;
+        t0 = t1;
+        t1 = temp;
+    }
+
+    //the ray missed the sphere
+    if (t1 < 0)
+        return {};
+    //if t0<0 intersection is at t1
+    if (t0 < 0)
+        return cameraPos + rayDirection * t1;
+    return cameraPos + rayDirection * t0;
+}
+
+std::vector<glm::vec2> colorChangePolygonPoints;
+void TrackMousePolygon(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view)
+{
+    auto position3DSphere = mousePositionToThePlanet(window, planetRadius, projection, view);
+    if (!position3DSphere.has_value())
+    {
+        return;
+    }
+    double theta, phi;
+    sphericalVectorToAngularPosition(*position3DSphere, theta, phi);
+    glm::vec2 colorChangePolygonPoint = sphericalToTexture(theta, phi);
+    colorChangePolygonPoints.push_back(colorChangePolygonPoint);
 }
 
 int main()
@@ -101,7 +206,7 @@ int main()
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
 
-    // world space positions of our cubes
+    // world space colorChangePolygonPoints of our cubes
     std::vector <glm::vec3> cubePositions;
     std::vector <glm::vec3> transformedPositions(3);
     std::vector <glm::vec2> sphereTextureCoords;
@@ -204,8 +309,6 @@ int main()
 
         glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         ourShader.setMat4("projection", projection);
-
-
         cameraPos = glm::vec3(
             cos(glm::radians(xAngleValue)) * cos(glm::radians(yAngleValue)),
             sin(glm::radians(yAngleValue)),
@@ -215,9 +318,9 @@ int main()
         cameraPos *= swipeCameraRadius;
 
         cameraFront = -glm::normalize(cameraPos);
-
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         ourShader.setMat4("view", view);
+
 
         for(int i = 0; i < cubePositions.size(); i++)
         {
@@ -239,6 +342,19 @@ int main()
 
             ourShader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        if (rightMouseButtonPressed)
+        {
+            TrackMousePolygon(window, p.mRadius, projection, view);
+        }
+        else
+        {
+            if (!colorChangePolygonPoints.empty())
+            {
+                p.TryToCreateFloodFillMapTO_DELETE(p.mLandMassImgData, p.mStatesImgData, colorChangePolygonPoints, glm::vec3(129));
+            }
+            colorChangePolygonPoints.clear();
         }
 
 
@@ -268,18 +384,22 @@ int main()
 
             ourShader.use();
 
-            glm::mat4 model = glm::mat4(1.0f);
-            glm::vec3 position(
-                p.mRadius * glm::sin(thetaPlace) * glm::cos(phiPlace),
-                p.mRadius * glm::sin(thetaPlace) * glm::sin(phiPlace),
-                p.mRadius * glm::cos(thetaPlace)
-            );
+            //glm::mat4 model = glm::mat4(1.0f);
+            //glm::vec3 position(
+            //    p.mRadius * glm::sin(thetaPlace) * glm::cos(phiPlace),
+            //    p.mRadius * glm::sin(thetaPlace) * glm::sin(phiPlace),
+            //    p.mRadius * glm::cos(thetaPlace)
+            //);
 
-            model = glm::translate(model, position);
-            model = glm::scale(model, glm::vec3(0.2, 0.5, 0.2));
+            //auto val = mousePositionToThePlanet(window, p.mRadius, projection, view);
+            //if (val.has_value())
+            //{
+            //    model = glm::translate(model, *val);
+            //    model = glm::scale(model, glm::vec3(0.2, 0.5, 0.2));
 
-            ourShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            //    ourShader.setMat4("model", model);
+            //    glDrawArrays(GL_TRIANGLES, 0, 36);
+            //}
         }
 
         {
@@ -294,7 +414,7 @@ int main()
 
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::scale(model, glm::vec3(p.mRadius));
-            model = glm::rotate(model, glm::pi<float>() * 1.5f, glm::vec3(1, 0, 0));
+           // model = glm::rotate(model, glm::pi<float>() * 1.5f, glm::vec3(1, 0, 0));
 
             p.planetShader.setMat4("model", model);
             p.planetShader.setInt("numVectors", sphereTextureCoords.size());
@@ -343,7 +463,6 @@ void processInput(GLFWwindow* window)
         phiPlace -= 1.0 * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
         placed = true;
-
 }
 
 
@@ -357,6 +476,11 @@ void mouse_callback_camera_swipe(GLFWwindow* window, double xposIn, double yposI
 {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        rightMouseButtonPressed = true;
+    else
+        rightMouseButtonPressed = false;
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {

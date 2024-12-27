@@ -3453,7 +3453,7 @@ GLFWAPI void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos);
  *  __Do not use this function__ to move an already visible window unless you
  *  have very good reasons for doing so, as it will confuse and annoy the user.
  *
- *  The window manager may put limits on what positions are allowed.  GLFW
+ *  The window manager may put limits on what colorChangePolygonPoints are allowed.  GLFW
  *  cannot and should not override these limits.
  *
  *  @param[in] window The window to query.

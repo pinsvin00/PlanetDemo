@@ -32,6 +32,7 @@ public:
   public:
 
     void TryToCreateFloodFillMap(Utils::ImageData& imgData, Utils::ImageData& imgDataOut, glm::vec2 startPoint, glm::vec3 color);
+    void TryToCreateFloodFillMapTO_DELETE(Utils::ImageData& imgDataIn, Utils::ImageData& imgDataOut, std::vector<glm::vec2> vecs, glm::vec3 color);
     void SetupRenderData();
     void GenerateSphere(float radius, int sectorCount, int stackCount, std::vector<float>& vertices, std::vector<int>& indices);
 
