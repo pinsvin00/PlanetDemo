@@ -17,6 +17,7 @@ class Planet
 
 public:
     uint32_t texture, VAO, VBO, EBO;
+    uint32_t textureBottom, heightMapTexture, terrianMapTexture, dudvMapTexture, waterTexture;
     uint32_t vertCount = 0;
     float mRadius = 0.0f;
 
@@ -24,6 +25,10 @@ public:
         planetShader(
             (Utils::Paths::ProjDir + "assets\\shaders\\earth_shader_vertex.glsl").c_str(),
             (Utils::Paths::ProjDir + "assets\\shaders\\earth_shader_fragment.glsl").c_str()
+        ),
+        planetBottomShader(
+            (Utils::Paths::ProjDir + "assets\\shaders\\earth_shader_vertex.glsl").c_str(),
+            (Utils::Paths::ProjDir + "assets\\shaders\\earth_shader_fragment_bottom.glsl").c_str()
         ),
         mRadius(radius)
     {
@@ -39,6 +44,7 @@ public:
     std::vector<float> mVerts;
     std::vector<int> mIndices;
     ShaderUtil planetShader;
+    ShaderUtil planetBottomShader;
     Utils::ImageData mLandMassImgData;
     Utils::ImageData mStatesImgData;
 

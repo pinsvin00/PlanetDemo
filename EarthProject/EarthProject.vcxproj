@@ -139,12 +139,14 @@
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="PlanetSoldier.cpp" />
     <ClCompile Include="ShaderUtil.cpp" />
+    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="src\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Planet.h" />
     <ClInclude Include="PlanetSoldier.h" />
     <ClInclude Include="ShaderUtil.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

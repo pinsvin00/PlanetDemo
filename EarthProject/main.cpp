@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+﻿#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -34,9 +34,6 @@ float pitch = 0.0f;
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 float fov = 90.0f;
-
-double thetaPlace = 0.0f;
-double phiPlace = 0.0f;
 bool placed = false;
 
 bool rightMouseButtonPressed = false;
@@ -47,15 +44,37 @@ double swipeCameraRadius = 15.0;
 double xAngleValue = 0.0;
 double yAngleValue = 0.0;
 
-// timing
-float deltaTime = 0.0f;	// time between current frame and last frame
+float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 
-glm::vec2 sphericalToTexture(double theta, double phi) {
-    double s = theta / glm::pi<float>();
-    double t = phi / (2 * glm::pi<float>());
-    return glm::vec2(t, s);
+float phi_place = 0.0f;
+float theta_place = 0.0f;
+
+glm::vec2 sphericalVectorToTextureCoords(double theta, double phi);
+
+// Calculate new theta after 270-degree rotation around X-axis
+double calculateThetaPrime(double theta, double phi) {
+    return acos(-sin(theta) * sin(phi)); // Fixed formula
+}
+
+// Calculate new phi after 270-degree rotation around X-axis
+double calculatePhiPrime(double theta, double phi) {
+    return atan2(sin(theta), cos(theta) * cos(phi));
+}
+
+glm::vec3 getOriginalPoint(const glm::vec3& X) {
+    // Rotation axis (1,0,0)
+    glm::vec3 axis(1.0f, 0.0f, 0.0f);
+
+    // Define the inverse rotation (90 degrees around X-axis)
+    constexpr float angle = glm::radians(90.0f); // -270 degrees is equivalent to +90 degrees
+    glm::quat inverseRotation = glm::angleAxis(angle, axis);
+
+    // Apply inverse rotation to X
+    glm::vec3 X_prime = inverseRotation * X;
+
+    return X_prime;
 }
 
 void sphericalVectorToAngularPosition(glm::vec3 point, double& theta, double& phi) {
@@ -66,11 +85,10 @@ void sphericalVectorToAngularPosition(glm::vec3 point, double& theta, double& ph
     float r = std::sqrt(x * x + y * y + z * z);
 
     // Azimuth (theta)
-    theta = std::atan2(y, x);
+    theta = std::atan2(z, x);
     if (theta < 0) theta += 2.0f * glm::pi<float>();  // Ensure theta is in [0, 2*pi]
-
     // Elevation (phi)
-    phi = std::acos(z / r);  // acos returns value in [0, pi]
+    phi = std::acos(y / r);
     phi = std::fmax(0.0f, phi);    // Clamp to avoid rare negative results
 }
 
@@ -98,16 +116,16 @@ glm::vec3 GetMouseWorldPosition(float mouseX, float mouseY,
 }
 
 
-std::optional<glm::vec3> mousePositionToThePlanet(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view)
+std::optional<glm::vec3> MousePositionToSphere(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view)
 {
     double mouseX, mouseY;
     glfwGetCursorPos(window, &mouseX, &mouseY);
 
     glm::vec3 rayOrigin = cameraPos;
     glm::vec3 mousePosition = GetMouseWorldPosition(mouseX, mouseY, projection, view, glm::vec2(SCR_WIDTH, SCR_HEIGHT));
-    glm::vec3 rayDirection = glm::normalize(mousePosition-rayOrigin);
+    glm::vec3 rayDirection = glm::normalize(mousePosition - rayOrigin);
 
-    glm::vec3 sphereCenter = glm::vec3(0.0f, 0.0f, 0.0f); // Sphere center position
+    glm::vec3 sphereCenter = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 startPosition = rayOrigin - sphereCenter;
 
     float a = glm::dot(rayDirection, rayDirection);
@@ -146,19 +164,31 @@ std::optional<glm::vec3> mousePositionToThePlanet(GLFWwindow* window, float plan
     return cameraPos + rayDirection * t0;
 }
 
+glm::vec2 sphericalVectorToTextureCoords(double theta, double phi)
+{
+    double xf = 1.0f - ((theta) / (2 * glm::pi<float>()));
+    double yf = 1.0f - (phi) / glm::pi<float>();
+    return glm::vec2(xf * 4000, yf * 2000);
+}
+
 std::vector<glm::vec2> colorChangePolygonPoints;
 void TrackMousePolygon(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view)
 {
-    auto position3DSphere = mousePositionToThePlanet(window, planetRadius, projection, view);
+    std::optional<glm::vec3> position3DSphere = MousePositionToSphere(window, planetRadius, projection, view);
     if (!position3DSphere.has_value())
     {
         return;
     }
     double theta, phi;
+    float radius = 10.0f;
     sphericalVectorToAngularPosition(*position3DSphere, theta, phi);
-    glm::vec2 colorChangePolygonPoint = sphericalToTexture(theta, phi);
+    //std::cout << phi << std::endl;
+    glm::vec2 colorChangePolygonPoint = sphericalVectorToTextureCoords(theta, phi);
     colorChangePolygonPoints.push_back(colorChangePolygonPoint);
 }
+
+
+
 
 int main()
 {
@@ -176,7 +206,6 @@ int main()
     // glfw window creation
     // --------------------
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-   
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -196,6 +225,8 @@ int main()
     }
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
     ShaderUtil ourShader(
@@ -203,7 +234,7 @@ int main()
         (Utils::Paths::ProjDir + "assets\\shaders\\cube_fragment.glsl").c_str()
     );
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // set up vertex data (and buffer(xf)) and configure vertex attributes
     // ------------------------------------------------------------------
 
     // world space colorChangePolygonPoints of our cubes
@@ -212,8 +243,6 @@ int main()
     std::vector <glm::vec2> sphereTextureCoords;
 
     srand(time(NULL));
-
-
 
     unsigned int cubeVBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
@@ -243,7 +272,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on theta y-axis.
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture'xf on theta y-axis.
     unsigned char* data = stbi_load(
         (Utils::Paths::ProjDir + "assets/textures/container.jpg").c_str(), &width, &height, &nrChannels, 0
     );
@@ -258,6 +287,7 @@ int main()
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
+
     // texture 2
     // ---------
     glGenTextures(1, &texture2);
@@ -285,7 +315,7 @@ int main()
     ourShader.setInt("texture2", 1);
 
     Planet p(10.0f);
-    p.GenerateSphere(1.0f, 72, 18*2, p.mVerts, p.mIndices);
+    p.GenerateSphere(1.0f, 144, 72, p.mVerts, p.mIndices);
     p.SetupRenderData();
 
 
@@ -308,6 +338,7 @@ int main()
         ourShader.use();
 
         glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
         ourShader.setMat4("projection", projection);
         cameraPos = glm::vec3(
             cos(glm::radians(xAngleValue)) * cos(glm::radians(yAngleValue)),
@@ -316,33 +347,9 @@ int main()
         );
 
         cameraPos *= swipeCameraRadius;
-
         cameraFront = -glm::normalize(cameraPos);
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         ourShader.setMat4("view", view);
-
-
-        for(int i = 0; i < cubePositions.size(); i++)
-        {
-            glBindVertexArray(cubeVAO);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture1);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, texture2);
-
-            ourShader.use();
-
-            glm::mat4 model = glm::mat4(1.0f);
-            glm::vec3 position = glm::vec3(1.0f, 0.0f, 0.0f);
-            position *= p.mRadius;
-
-            //model = glm::rotate(model, 90.0f, glm::vec3(1, 1, 1));
-            model = glm::translate(model, cubePositions[i]);
-            model = glm::scale(model, glm::vec3(0.2, 0.5, 0.2));
-
-            ourShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
 
         if (rightMouseButtonPressed)
         {
@@ -357,74 +364,78 @@ int main()
             colorChangePolygonPoints.clear();
         }
 
-
-        if (placed && currentFrame - lastTimePlaced > 0.5f)
         {
-            glm::vec3 position(
-                p.mRadius * glm::sin(thetaPlace) * glm::cos(phiPlace),
-                p.mRadius * glm::sin(thetaPlace) * glm::sin(phiPlace),
-                p.mRadius * glm::cos(thetaPlace)
-            );
-            cubePositions.push_back(position);
-            sphereTextureCoords.push_back(sphericalToTexture(thetaPlace, phiPlace));
-            placed = false;
-            lastTimePlaced = currentFrame;
-        }
-        else
-        {
-            placed = false;
-        }
+        //    glBindVertexArray(p.VAO);
+        //    glActiveTexture(GL_TEXTURE0);
+        //    glBindTexture(GL_TEXTURE_2D, p.textureBottom);
 
-        {
-            glBindVertexArray(cubeVAO);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture1);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, texture2);
+        //    p.planetBottomShader.use();
+        //    p.planetBottomShader.setMat4("projection", projection);
+        //    p.planetBottomShader.setMat4("view", view);
+        //    p.planetBottomShader.setInt("planetBottomMap", 0);
 
-            ourShader.use();
-
-            //glm::mat4 model = glm::mat4(1.0f);
-            //glm::vec3 position(
-            //    p.mRadius * glm::sin(thetaPlace) * glm::cos(phiPlace),
-            //    p.mRadius * glm::sin(thetaPlace) * glm::sin(phiPlace),
-            //    p.mRadius * glm::cos(thetaPlace)
-            //);
-
-            //auto val = mousePositionToThePlanet(window, p.mRadius, projection, view);
-            //if (val.has_value())
-            //{
-            //    model = glm::translate(model, *val);
-            //    model = glm::scale(model, glm::vec3(0.2, 0.5, 0.2));
-
-            //    ourShader.setMat4("model", model);
-            //    glDrawArrays(GL_TRIANGLES, 0, 36);
-            //}
+        //    glm::mat4 model = glm::mat4(1.0f);
+        //    model = glm::scale(model, glm::vec3(p.mRadius - 0.3f));
+        //    p.planetBottomShader.setMat4("model", model);
+        //    glDrawElements(GL_TRIANGLES, p.mIndices.size(), GL_UNSIGNED_INT, 0);
         }
 
         {
             glBindVertexArray(p.VAO);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, p.texture);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, p.heightMapTexture);
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, p.terrianMapTexture);
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, p.dudvMapTexture);
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_2D, p.waterTexture);
 
             p.planetShader.use();
             p.planetShader.setMat4("projection", projection);
             p.planetShader.setMat4("view", view);
             p.planetShader.setInt("redPlanetMap", 0);
+            p.planetShader.setInt("heightMap", 1);
+            p.planetShader.setInt("terrainMapTexture", 2);
+            p.planetShader.setInt("dudvMap", 3);
+            p.planetShader.setInt("waterTexture", 4);
+            p.planetShader.setFloat("time", glfwGetTime());
+
+            double time = glfwGetTime();
+
+            p.planetShader.setVec3("viewPos", glm::vec3(1.0f, 2.0f, 5.0f));
+            float theta, phi;
+            theta = glm::radians(90.0f);
+            phi = time;
+
+            float xy = (p.mRadius + 5.0f) * cosf(phi); // r * cos(u)
+            float z = (p.mRadius + 5.0f) * sinf(phi); // r * sin(u)
+            float x = xy * cosf(theta); // r * cos(u) * cos(v)
+            float y = xy * sinf(theta); // r * cos(u) * sin(v)
+
+            float nx, ny, nz;
+            nx = x / p.mRadius;
+            ny = y / p.mRadius;
+            nz = z / p.mRadius;
+
+            p.planetShader.setVec3("light.position", x, y, z);
+            p.planetShader.setVec3("light.direction", glm::vec3(nx, ny, nz));
+
+            p.planetShader.setVec3("light.ambient", 1.0f, 1.f, 1.f);
+            p.planetShader.setVec3("light.diffuse", .1f, .1f, .1f);
+            p.planetShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::scale(model, glm::vec3(p.mRadius));
-           // model = glm::rotate(model, glm::pi<float>() * 1.5f, glm::vec3(1, 0, 0));
-
+            float osc = (glm::sin(glfwGetTime()/5.0f) + 1.0f) / 2.0f;
+            model = glm::rotate(model,
+                glm::pi<float>() * 1.5f,
+                glm::vec3(1, 0, 0)
+            );
             p.planetShader.setMat4("model", model);
-            p.planetShader.setInt("numVectors", sphereTextureCoords.size());
-            GLint location = glGetUniformLocation(p.planetShader.ID, "myVectors");
-            if (sphereTextureCoords.size() > 0)
-            {
-                glUniform2fv(location, sphereTextureCoords.size(), &sphereTextureCoords[0].x);
-            }
             glDrawElements(GL_TRIANGLES, p.mIndices.size(), GL_UNSIGNED_INT, 0);
-
         }
 
         glfwSwapBuffers(window);
@@ -443,26 +454,26 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     float cameraSpeed = static_cast<float>(7.5 * deltaTime);
-    //if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    //    cameraPos += cameraSpeed * cameraFront;
-    //if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    //    cameraPos -= cameraSpeed * cameraFront;
-    //if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    //    cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    //if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    //    cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 
-    //placing shits
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        thetaPlace += 0.1 * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        thetaPlace -= 0.1 * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        phiPlace += 1.0 * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        phiPlace -= 1.0 * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-        placed = true;
+    ////placing shits
+    //if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    //    thetaPlace += 0.1 * deltaTime;
+    //if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    //    thetaPlace -= 0.1 * deltaTime;
+    //if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    //    phiPlace += 1.0 * deltaTime;
+    //if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    //    phiPlace -= 1.0 * deltaTime;
+    //if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+    //    placed = true;
 }
 
 
