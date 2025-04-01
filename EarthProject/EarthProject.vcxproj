@@ -135,19 +135,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Demo.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="PlanetSoldier.cpp" />
     <ClCompile Include="ShaderUtil.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="src\glad.c" />
+    <ClCompile Include="WindowContext.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Demo.h" />
+    <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Planet.h" />
     <ClInclude Include="PlanetSoldier.h" />
     <ClInclude Include="ShaderUtil.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="WindowContext.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -206,7 +206,6 @@ void Planet::SetupRenderData()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data2);
     glBindTexture(GL_TEXTURE_2D, 0);
     stbi_image_free(data2);
-;
 
     glGenTextures(1, &heightMapTexture);
     glBindTexture(GL_TEXTURE_2D, heightMapTexture);
@@ -217,12 +216,37 @@ void Planet::SetupRenderData()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    int max;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
+
     unsigned char* heightData = stbi_load(
-        (Utils::Paths::ProjDir + "assets/textures/gebco_08_rev_elev.png").c_str(), &width, &height, &nrChannels, 0
+        (Utils::Paths::ProjDir + "assets/textures/gebco_08_rev_elev_low_res.png").c_str(), &width, &height, &nrChannels, 0
     );
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, heightData);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    stbi_image_free(heightData);
+    if (heightData)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, heightData);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        GLenum error = glGetError();
+        switch (error) {
+        case GL_INVALID_ENUM:
+            printf("OpenGL Error: GL_INVALID_ENUM\n");
+            break;
+        case GL_INVALID_VALUE:
+            printf("OpenGL Error: GL_INVALID_VALUE\n");
+            break;
+        case GL_INVALID_OPERATION:
+            printf("OpenGL Error: GL_INVALID_OPERATION\n");
+            break;
+        case GL_OUT_OF_MEMORY:
+            printf("OpenGL Error: GL_OUT_OF_MEMORY\n");
+            break;
+        default:
+            printf("OpenGL Error: Unknown error\n");
+            break;
+        }
+        stbi_image_free(heightData);
+    }
+
 
 
     glGenTextures(1, &terrianMapTexture);
@@ -292,7 +316,6 @@ void Planet::SetupRenderData()
     //texture coords
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
-
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

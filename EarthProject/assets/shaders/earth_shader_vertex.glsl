@@ -15,12 +15,11 @@ uniform sampler2D heightMap;
 void main()
 {
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
-
 	Normal = aNormal;
 
 	vec4 heightData = texture(heightMap, aTexCoord);
-	float r = heightData.x * 0.05;
-	vec3 res = aPos + aNormal * r;
+	float r = heightData.x;
+	vec3 res = aPos + aNormal * r * 0.05;
 	FragPos = vec3(model * vec4(res, 1.0));
 	gl_Position = projection * view * model * vec4(res, 1.0f);
 

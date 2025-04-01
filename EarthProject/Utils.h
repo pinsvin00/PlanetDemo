@@ -12,7 +12,7 @@ namespace Utils
 
     namespace Paths
     {
-        const std::string ProjDir = "C:\\Users\\pnsv0\\source\\repos\\EarthProject\\EarthProject\\";
+        const std::string ProjDir = "C:\\Users\\Michal\\source\\repos\\EarthProject\\EarthProject\\";
     }
     namespace Render
     {
