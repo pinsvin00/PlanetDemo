@@ -13,11 +13,9 @@
 
 class Planet
 {
-
-
 public:
-    uint32_t texture, VAO, VBO, EBO;
-    uint32_t textureBottom, heightMapTexture, terrianMapTexture, dudvMapTexture, waterTexture;
+    uint32_t mWaterLandTexture, VAO, VBO, EBO;
+    uint32_t textureBottom, heightMapTexture, terrianMapTexture, dudvMapTexture, waterTexture, provinceTexture;
     uint32_t vertCount = 0;
     float mRadius = 0.0f;
 
@@ -37,7 +35,6 @@ public:
   public:
 
     void TryToCreateFloodFillMap(Utils::ImageData& imgData, Utils::ImageData& imgDataOut, glm::vec2 startPoint, glm::vec3 color);
-    void TryToCreateFloodFillMapTO_DELETE(Utils::ImageData& imgDataIn, Utils::ImageData& imgDataOut, std::vector<glm::vec2> vecs, glm::vec3 color);
     void SetupRenderData();
     void GenerateSphere(float radius, int sectorCount, int stackCount, std::vector<float>& vertices, std::vector<int>& indices);
 

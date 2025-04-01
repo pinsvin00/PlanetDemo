@@ -143,6 +143,7 @@
     <ClCompile Include="ShaderUtil.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="src\glad.c" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="WindowContext.cpp" />
   </ItemGroup>
   <ItemGroup>

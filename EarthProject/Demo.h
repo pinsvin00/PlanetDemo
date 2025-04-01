@@ -29,6 +29,7 @@ private:
 	glm::vec3 mCameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
 	glm::vec3 mCameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 mCameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	float lastTimeMousePressedToRecolor = 0.0f;
 
 	ShaderUtil cubeShader;
 
@@ -37,7 +38,7 @@ private:
 	void Terminate();
 
 	std::vector<glm::vec2> mColorChangePolygonPoints;
-	void TrackMousePolygon(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view);
+	std::optional<glm::vec2> TrackMousePositionFromSphereToTexture(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view);
 
 public:
 	bool firstMouse = true;

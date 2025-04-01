@@ -48,6 +48,18 @@ void Demo::OnTick()
     mProjection = glm::perspective(glm::radians(fov), (float)windowCtx->mXSize / (float)windowCtx->mYSize, 0.1f, 100.0f);
 
 
+    if (rightMouseButtonPressed && currentFrame - lastTimeMousePressedToRecolor >= 0.2f)
+    {
+        std::optional<glm::vec2> textureCoordinates = TrackMousePositionFromSphereToTexture(windowCtx->mWindow, mEarthPlanet.mRadius, mProjection, mView);
+        if (textureCoordinates.has_value())
+        {
+            lastTimeMousePressedToRecolor = currentFrame;
+            //std::cout << "x " << textureCoordinates->x << std::endl;
+            //std::cout << "y " << textureCoordinates->y << std::endl;
+            mEarthPlanet.TryToCreateFloodFillMap(mEarthPlanet.mStatesImgData, mEarthPlanet.mLandMassImgData, *textureCoordinates, glm::vec3(129));
+        }
+    }
+
     //Input processing
     ProcessInput(windowCtx->mWindow);
 
@@ -68,22 +80,6 @@ void Demo::OnTick()
         //glDrawElements(GL_TRIANGLES, p.mIndices.size(), GL_UNSIGNED_INT, 0);
     }
 
-    //?
-    {
-        if (rightMouseButtonPressed)
-        {
-            TrackMousePolygon(windowCtx->mWindow, mEarthPlanet.mRadius, mProjection, mView);
-        }
-        else
-        {
-            if (!mColorChangePolygonPoints.empty())
-            {
-                //p.TryToCreateFloodFillMapTO_DELETE(p.mLandMassImgData, p.mStatesImgData, colorChangePolygonPoints, glm::vec3(129));
-            }
-            mColorChangePolygonPoints.clear();
-        }
-    }
-
     //Render planet
     {
         ShaderUtil& planetShader = mEarthPlanet.planetShader;
@@ -91,7 +87,7 @@ void Demo::OnTick()
 
         glBindVertexArray(mEarthPlanet.VAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, mEarthPlanet.texture);
+        glBindTexture(GL_TEXTURE_2D, mEarthPlanet.mWaterLandTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, mEarthPlanet.heightMapTexture);
         glActiveTexture(GL_TEXTURE2);
@@ -109,7 +105,7 @@ void Demo::OnTick()
         planetShader.setInt("waterTexture", 4);
 
         float time = static_cast<float>(glfwGetTime());
-        float theta = glm::radians(90.0f);
+        constexpr float theta = glm::radians(90.0f);
         float phi = time;
 
         float xy = (mEarthPlanet.mRadius + 5.0f) * cosf(phi); // r * cos(u)
@@ -161,28 +157,24 @@ void Demo::Terminate()
     glfwTerminate();
 }
 
-void Demo::TrackMousePolygon(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view)
+std::optional<glm::vec2> Demo::TrackMousePositionFromSphereToTexture(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view)
 {
     std::optional<glm::vec3> position3DSphere = MathUtils::MousePositionToSphere(window, mCameraPosition, planetRadius, projection, view);
     //We don't need to have the mouse on the planet, dont track anything if mouse doesn't point to the planet.
     if (!position3DSphere.has_value())
     {
-        return;
+        return std::nullopt;
     }
 
     double theta, phi;
-    float radius = 10.0f;
     MathUtils::SphericalVectorToAngularPosition(*position3DSphere, theta, phi);
     //Convert spherical coordinates to the x,y both ranging (0.0f,1.0f)
     double xf = 1.0f - ((theta) / (2 * glm::pi<float>()));
-    double yf = 1.0f - (phi) / glm::pi<float>();
-    mColorChangePolygonPoints.push_back(
-        glm::vec2(xf * 4000, yf * 2000)
-    );
+    double yf = (phi) / glm::pi<float>();
+    return glm::vec2(xf * mEarthPlanet.mLandMassImgData.w, yf * mEarthPlanet.mLandMassImgData.h);
 }
 
 //STATIC FUNCTIONS, RELATED TO GLFW
-
 void Demo::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     std::shared_ptr<Demo> demo = Demo::GetInstance();

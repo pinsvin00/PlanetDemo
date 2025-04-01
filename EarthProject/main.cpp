@@ -23,7 +23,7 @@
 // Disallow scrolling into the middle of the planet
 // Fix coloring of the provinces
 // Create the map for provinces, and the outlines for them
-// Fix the texture of the water, it's currently too big, and should show much less details in the general
+// Fix the mWaterLandTexture of the water, it's currently too big, and should show much less details in the general
 // Fix the resizing window, make sure that if we resize to the FULL HD the screen would be ok, same as the mouse
 // Clean up the code
 
@@ -94,10 +94,10 @@ int main()
        //glEnableVertexAttribArray(1);
 
 
-       //// load and create a texture 
+       //// load and create a mWaterLandTexture 
        //// -------------------------
        //unsigned int texture1, texture2, textureEarthWhiteBlack;
-       //// texture 1
+       //// mWaterLandTexture 1
        //// ---------
        //glGenTextures(1, &texture1);
        //glBindTexture(GL_TEXTURE_2D, texture1);
@@ -105,9 +105,9 @@ int main()
        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-       //// load image, create texture and generate mipmaps
+       //// load image, create mWaterLandTexture and generate mipmaps
        //int width, height, nrChannels;
-       //stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture'xf on theta y-axis.
+       //stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded mWaterLandTexture'xf on theta y-axis.
        //unsigned char* data = stbi_load(
        //    (Utils::Paths::ProjDir + "assets/textures/container.jpg").c_str(), &width, &height, &nrChannels, 0
        //);
@@ -119,7 +119,7 @@ int main()
        //}
        //else
        //{
-       //    std::cout << "Failed to load texture" << std::endl;
+       //    std::cout << "Failed to load mWaterLandTexture" << std::endl;
        //}
        //stbi_image_free(data);
 
@@ -139,7 +139,7 @@ int main()
        //}
        //else
        //{
-       //    std::cout << "Failed to load texture" << std::endl;
+       //    std::cout << "Failed to load mWaterLandTexture" << std::endl;
        //}
        //stbi_image_free(data);
 
