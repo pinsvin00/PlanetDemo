@@ -2,6 +2,8 @@
 #include "MathUtils.h"
 #include "ShaderUtil.h"
 #include "Planet.h"
+#include "parser.h"
+#include "util.h"
 
 class Demo
 {
@@ -19,6 +21,14 @@ public:
 	static void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
 
 private:
+	double mMaxZoomValue;
+	double mMinZoomValue;
+
+	//json related stuff
+	std::string mFileName = "settings.json";
+	Asago::Parser mJsonParser;
+	Asago::Value* mGameSettings;
+
 	std::shared_ptr<WindowContext> windowCtx;
 
 	Planet mEarthPlanet;
@@ -57,6 +67,7 @@ public:
 	float lastFrame = 0.0f;
 	float phi_place = 0.0f;
 	float theta_place = 0.0f;
+	int currentCountryId = 129;
 
 };
 

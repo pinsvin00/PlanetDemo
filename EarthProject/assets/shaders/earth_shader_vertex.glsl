@@ -15,7 +15,7 @@ uniform sampler2D heightMap;
 void main()
 {
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
-	Normal = aNormal;
+    Normal = mat3(transpose(inverse(model))) * aNormal;
 
 	vec4 heightData = texture(heightMap, aTexCoord);
 	float r = heightData.x;

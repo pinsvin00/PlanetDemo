@@ -25,7 +25,7 @@ public:
             (Utils::Paths::ProjDir + "assets\\shaders\\earth_shader_fragment.glsl").c_str()
         ),
         planetBottomShader(
-            (Utils::Paths::ProjDir + "assets\\shaders\\earth_shader_vertex.glsl").c_str(),
+            (Utils::Paths::ProjDir + "assets\\shaders\\earth_shader_vertex_bottom.glsl").c_str(),
             (Utils::Paths::ProjDir + "assets\\shaders\\earth_shader_fragment_bottom.glsl").c_str()
         ),
         mRadius(radius)

@@ -14,19 +14,19 @@
 #include <queue>
 #include <optional>
 #include "Demo.h"
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 // TODO
-// general refactor
 // Fix rendering bottom of the ocean, include the real data, to show shallow seas
 // Fix the paths, they're currently based of the hardcoded string
-// Create the github repo
-// Disallow scrolling into the middle of the planet
 // Fix coloring of the provinces
-// Create the map for provinces, and the outlines for them
 // Fix the mWaterLandTexture of the water, it's currently too big, and should show much less details in the general
-// Fix the resizing window, make sure that if we resize to the FULL HD the screen would be ok, same as the mouse
 // Clean up the code
-
+// Fix the borders between provinces
+// Add some cli stuff to change the current color
+// Move some code from the plane to the Demo class,  or some other, the planet class doesn't seem like the right thing, it's singleton
 // settings
 
 void SetupOpenGL()
@@ -67,6 +67,17 @@ void SetupOpenGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(WindowContext::GetInstance()->mWindow, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
 }
 
 int main()
@@ -75,83 +86,12 @@ int main()
     SetupOpenGL();
 
     std::shared_ptr<Demo> earthDemo = Demo::GetInstance();
-    std::shared_ptr<WindowContext> context = WindowContext::GetInstance();
-    earthDemo->Init();
-
-    {
-       //unsigned int cubeVBO, cubeVAO;
-       //glGenVertexArrays(1, &cubeVAO);
-       //glGenBuffers(1, &cubeVBO);
-
-       //glBindVertexArray(cubeVAO);
-
-       //glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-       //glBufferData(GL_ARRAY_BUFFER, sizeof(Utils::Render::CubeVertices), Utils::Render::CubeVertices, GL_STATIC_DRAW);
-
-       //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-       //glEnableVertexAttribArray(0);
-       //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-       //glEnableVertexAttribArray(1);
-
-
-       //// load and create a mWaterLandTexture 
-       //// -------------------------
-       //unsigned int texture1, texture2, textureEarthWhiteBlack;
-       //// mWaterLandTexture 1
-       //// ---------
-       //glGenTextures(1, &texture1);
-       //glBindTexture(GL_TEXTURE_2D, texture1);
-       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-       //// load image, create mWaterLandTexture and generate mipmaps
-       //int width, height, nrChannels;
-       //stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded mWaterLandTexture'xf on theta y-axis.
-       //unsigned char* data = stbi_load(
-       //    (Utils::Paths::ProjDir + "assets/textures/container.jpg").c_str(), &width, &height, &nrChannels, 0
-       //);
-
-       //if (data)
-       //{
-       //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-       //    glGenerateMipmap(GL_TEXTURE_2D);
-       //}
-       //else
-       //{
-       //    std::cout << "Failed to load mWaterLandTexture" << std::endl;
-       //}
-       //stbi_image_free(data);
-
-       //glGenTextures(1, &texture2);
-       //glBindTexture(GL_TEXTURE_2D, texture2);
-       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-       //data = stbi_load((Utils::Paths::ProjDir + "assets/textures/awesomeface.png").c_str(), &width, &height, &nrChannels, 0);
-       //if (data)
-       //{
-       //    // note that theta awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL theta data type is of GL_RGBA
-       //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-       //    glGenerateMipmap(GL_TEXTURE_2D);
-       //}
-       //else
-       //{
-       //    std::cout << "Failed to load mWaterLandTexture" << std::endl;
-       //}
-       //stbi_image_free(data);
-
-       //ourShader.use();
-       //ourShader.setInt("texture1", 0);
-       //ourShader.setInt("texture2", 1);
-    }
-   
     std::shared_ptr<WindowContext> ctx = WindowContext::GetInstance();
+    earthDemo->Init();
+   
     while (!glfwWindowShouldClose(ctx->mWindow))
     {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.05, 0.05, 0.05, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         earthDemo->OnTick();
@@ -160,6 +100,10 @@ int main()
         glfwPollEvents();
     }
 
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     return 0;
 }

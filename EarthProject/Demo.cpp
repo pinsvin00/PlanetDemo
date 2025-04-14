@@ -1,5 +1,9 @@
 #include "Demo.h"
 #include "Utils.h"
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include <format>
 
 Demo::Demo() : 
     mEarthPlanet(10.0f),
@@ -22,6 +26,9 @@ void Demo::Init()
     mEarthPlanet.GenerateSphere(1.0f, 144, 72, mEarthPlanet.mVerts, mEarthPlanet.mIndices);
     mEarthPlanet.SetupRenderData();
     windowCtx = WindowContext::GetInstance();
+    mGameSettings = mJsonParser.load_from_file(Utils::Paths::ProjDir + mFileName);
+    mMaxZoomValue = asago_bytes_to_double((*mGameSettings->mapped_values)["MAX_ZOOM"]->result);
+    mMinZoomValue = asago_bytes_to_double((*mGameSettings->mapped_values)["MIN_ZOOM"]->result);
 }
 
 void Demo::SetupOpenGL()
@@ -31,6 +38,13 @@ void Demo::SetupOpenGL()
 
 void Demo::OnTick()
 {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Text(std::format("max zoom = {}", mMaxZoomValue).c_str());
+    ImGui::Text(std::format("min zoom = {}", mMinZoomValue).c_str());
+
     //dt
     float currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
@@ -54,9 +68,8 @@ void Demo::OnTick()
         if (textureCoordinates.has_value())
         {
             lastTimeMousePressedToRecolor = currentFrame;
-            //std::cout << "x " << textureCoordinates->x << std::endl;
-            //std::cout << "y " << textureCoordinates->y << std::endl;
-            mEarthPlanet.TryToCreateFloodFillMap(mEarthPlanet.mStatesImgData, mEarthPlanet.mLandMassImgData, *textureCoordinates, glm::vec3(129));
+            mEarthPlanet.TryToCreateFloodFillMap(mEarthPlanet.mStatesImgData, mEarthPlanet.mLandMassImgData, 
+                glm::vec2((int)textureCoordinates->x, (int)textureCoordinates->y), glm::vec3(currentCountryId));
         }
     }
 
@@ -65,19 +78,19 @@ void Demo::OnTick()
 
     //Render the bottom of the sea
     {
-        //glBindVertexArray(p.VAO);
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, p.textureBottom);
+        glBindVertexArray(mEarthPlanet.VAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mEarthPlanet.textureBottom);
 
-        //p.planetBottomShader.use();
-        //p.planetBottomShader.setMat4("projection", projection);
-        //p.planetBottomShader.setMat4("view", view);
-        //p.planetBottomShader.setInt("planetBottomMap", 0);
+        mEarthPlanet.planetBottomShader.use();
+        mEarthPlanet.planetBottomShader.setMat4("projection", mProjection);
+        mEarthPlanet.planetBottomShader.setMat4("view", mView);
+        mEarthPlanet.planetBottomShader.setInt("planetBottomMap", 0);
 
-        //glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::scale(model, glm::vec3(p.mRadius - 0.3f));
-        //p.planetBottomShader.setMat4("model", model);
-        //glDrawElements(GL_TRIANGLES, p.mIndices.size(), GL_UNSIGNED_INT, 0);
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(mEarthPlanet.mRadius - 0.20f));
+        mEarthPlanet.planetBottomShader.setMat4("model", model);
+        glDrawElements(GL_TRIANGLES, mEarthPlanet.mIndices.size(), GL_UNSIGNED_INT, 0);
     }
 
     //Render planet
@@ -105,14 +118,14 @@ void Demo::OnTick()
         planetShader.setInt("waterTexture", 4);
 
         float time = static_cast<float>(glfwGetTime());
-        constexpr float theta = glm::radians(90.0f);
-        float phi = time;
+        float theta = glm::radians(180.0f);
+        float phi = time * 2.0f;
 
-        float xy = (mEarthPlanet.mRadius + 5.0f) * cosf(phi); // r * cos(u)
-        float z = (mEarthPlanet.mRadius + 5.0f) * sinf(phi); // r * sin(u)
+        const float radiusAdd = 20.0f;
+        float x = (mEarthPlanet.mRadius + radiusAdd) * cosf(phi) * cosf(theta); // r * cos(u) * cos(v)
+        float y = (mEarthPlanet.mRadius + radiusAdd) * cosf(phi) * sinf(theta); // r * cos(u) * sin(v)
+        float z = (mEarthPlanet.mRadius + radiusAdd) * sinf(phi); // r * sin(u)
 
-        float x = xy * cosf(theta); // r * cos(u) * cos(v)
-        float y = xy * sinf(theta); // r * cos(u) * sin(v)
         float nx, ny, nz;
         nx = x / mEarthPlanet.mRadius;
         ny = y / mEarthPlanet.mRadius;
@@ -128,15 +141,18 @@ void Demo::OnTick()
 
         planetShader.setFloat("time", static_cast<float>(glfwGetTime()));
         planetShader.setVec3("viewPos", glm::vec3(1.0f, 2.0f, 5.0f));
-        planetShader.setVec3("light.position", x, y, z);
-        planetShader.setVec3("light.direction", glm::vec3(nx, ny, nz));
-        planetShader.setVec3("light.ambient", 1.0f, 1.f, 1.f);
-        planetShader.setVec3("light.diffuse", .1f, .1f, .1f);
+        planetShader.setVec3("light.position", x,y,z);
+        planetShader.setVec3("light.direction", nx,ny,nz);
+        planetShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        planetShader.setVec3("light.diffuse", .9f, .9f, .9f);
         planetShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
         planetShader.setMat4("model", model);
 
         glDrawElements(GL_TRIANGLES, mEarthPlanet.mIndices.size(), GL_UNSIGNED_INT, 0);
     }
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Demo::ProcessCamera()
@@ -159,7 +175,7 @@ void Demo::Terminate()
 
 std::optional<glm::vec2> Demo::TrackMousePositionFromSphereToTexture(GLFWwindow* window, float planetRadius, glm::mat4 projection, glm::mat4 view)
 {
-    std::optional<glm::vec3> position3DSphere = MathUtils::MousePositionToSphere(window, mCameraPosition, planetRadius, projection, view);
+    std::optional<glm::vec3> position3DSphere = MathUtils::MousePositionToSphere(window, mCameraPosition, mEarthPlanet.mRadius, mProjection, mView);
     //We don't need to have the mouse on the planet, dont track anything if mouse doesn't point to the planet.
     if (!position3DSphere.has_value())
     {
@@ -179,6 +195,7 @@ void Demo::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     std::shared_ptr<Demo> demo = Demo::GetInstance();
     demo->swipeCameraRadius += 0.2 * yoffset;
+    demo->swipeCameraRadius = glm::clamp(demo->swipeCameraRadius, demo->mMinZoomValue, demo->mMaxZoomValue);
 }
 
 void Demo::MouseCallback(GLFWwindow* window, double xposIn, double yposIn)
@@ -240,10 +257,20 @@ void Demo::ProcessInput(GLFWwindow* window)
         demo->mCameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         demo->mCameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+    {
+        int countryId;
+        std::cout << "Please enter the country id you wish to edit.";
+        std::cin >> countryId;
+        demo->currentCountryId = countryId;
+    }
 }
 
 void Demo::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
+    std::shared_ptr<WindowContext> ctx = WindowContext::GetInstance();
+    ctx->mXSize = width;
+    ctx->mYSize = height;
     glViewport(0, 0, width, height);
 }
 

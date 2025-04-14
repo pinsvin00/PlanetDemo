@@ -45,9 +45,7 @@ std::optional<glm::vec3> MathUtils::MousePositionToSphere(GLFWwindow* window, co
 
     std::shared_ptr<WindowContext> ctx = WindowContext::GetInstance();
     glm::vec3 mousePosition = GetMouseWorldPosition(mouseX, mouseY, projection, view, glm::vec2(ctx->mXSize, ctx->mYSize));
-
     glm::vec3 rayDirection = glm::normalize(mousePosition - rayOrigin);
-
     glm::vec3 sphereCenter = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 startPosition = rayOrigin - sphereCenter;
 

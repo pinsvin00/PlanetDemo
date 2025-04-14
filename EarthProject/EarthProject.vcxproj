@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include\asago-json;$(ProjectDir)include\imgui;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -136,7 +136,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Demo.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="include\asago-json\http.cpp" />
+    <ClCompile Include="include\asago-json\lex.yy.cpp" />
+    <ClCompile Include="include\asago-json\parser.cpp" />
+    <ClCompile Include="include\asago-json\toks.cpp" />
+    <ClCompile Include="include\asago-json\util.cpp" />
+    <ClCompile Include="include\asago-json\value.cpp" />
+    <ClCompile Include="include\asago-json\ValuePrinter.cpp" />
+    <ClCompile Include="include\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="include\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="include\imgui\imgui.cpp" />
+    <ClCompile Include="include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="main.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)include\asago-json;$(ProjectDir)include\imgui;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="PlanetSoldier.cpp" />

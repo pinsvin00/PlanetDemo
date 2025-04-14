@@ -32,7 +32,7 @@ void main()
     
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = 0.0;//pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 
 	vec4 textureRGBA = texture(redPlanetMap, TexCoord);
 	vec4 textureTerrainRGBA = texture(terrainMapTexture, TexCoord);
@@ -59,7 +59,6 @@ void main()
 	{
 		halfResult = vec4(0,1,0,1);
 	}
-
 
 	if(!isWater)
 	{

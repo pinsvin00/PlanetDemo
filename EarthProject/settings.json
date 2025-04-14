@@ -1,0 +1,7 @@
+{
+    "name": "abcd",
+    "MAX_ZOOM": 20.0,
+    "MIN_ZOOM": 0.0,
+    "USE_LOW_RES_HEIGHT_MAP": true
+
+}
