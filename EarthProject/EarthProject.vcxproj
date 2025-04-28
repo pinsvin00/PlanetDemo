@@ -102,9 +102,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;PROJECT_DIR="$(ProjectDir)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include\asago-json;$(ProjectDir)include\imgui;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include\Asago;$(ProjectDir)include\imgui;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -135,14 +135,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Demo.cpp" />
-    <ClCompile Include="include\asago-json\http.cpp" />
-    <ClCompile Include="include\asago-json\lex.yy.cpp" />
-    <ClCompile Include="include\asago-json\parser.cpp" />
-    <ClCompile Include="include\asago-json\toks.cpp" />
-    <ClCompile Include="include\asago-json\util.cpp" />
-    <ClCompile Include="include\asago-json\value.cpp" />
-    <ClCompile Include="include\asago-json\ValuePrinter.cpp" />
+    <ClCompile Include="CountryData.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="include\Asago\http.cpp" />
+    <ClCompile Include="include\Asago\lex.yy.cpp" />
+    <ClCompile Include="include\Asago\parser.cpp" />
+    <ClCompile Include="include\Asago\toks.cpp" />
+    <ClCompile Include="include\Asago\util.cpp" />
+    <ClCompile Include="include\Asago\value.cpp" />
+    <ClCompile Include="include\Asago\ValuePrinter.cpp" />
     <ClCompile Include="include\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="include\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="include\imgui\imgui.cpp" />
@@ -156,6 +159,7 @@
     <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="PlanetSoldier.cpp" />
+    <ClCompile Include="Render.cpp" />
     <ClCompile Include="ShaderUtil.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="src\glad.c" />
@@ -163,10 +167,14 @@
     <ClCompile Include="WindowContext.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Demo.h" />
+    <ClInclude Include="CountryData.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Engine.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Planet.h" />
     <ClInclude Include="PlanetSoldier.h" />
+    <ClInclude Include="Render.h" />
     <ClInclude Include="ShaderUtil.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Utils.h" />

@@ -147,10 +147,9 @@ void Planet::SetupRenderData()
 
 void Planet::GenerateSphere(float radius, int sectorCount, int stackCount, std::vector<float>& vertices, std::vector<int>& indices) {
 
-    const double M_PI = 3.14;
+    const float M_PI = 3.14f;
 
     float x, y, z, xy; // vertex position
-    float nx, ny, nz; // vertex normal
     float s, t; // vertex mWaterLandTexture coordinates
     float sectorStep = 2 * M_PI / sectorCount;
     float stackStep = M_PI / stackCount;

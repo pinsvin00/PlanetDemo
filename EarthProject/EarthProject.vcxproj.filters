@@ -42,7 +42,7 @@
     <ClCompile Include="MathUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Demo.cpp">
+    <ClCompile Include="Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WindowContext.cpp">
@@ -50,27 +50,6 @@
     </ClCompile>
     <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="include\asago-json\http.cpp">
-      <Filter>Header Files\json</Filter>
-    </ClCompile>
-    <ClCompile Include="include\asago-json\parser.cpp">
-      <Filter>Header Files\json</Filter>
-    </ClCompile>
-    <ClCompile Include="include\asago-json\toks.cpp">
-      <Filter>Header Files\json</Filter>
-    </ClCompile>
-    <ClCompile Include="include\asago-json\util.cpp">
-      <Filter>Header Files\json</Filter>
-    </ClCompile>
-    <ClCompile Include="include\asago-json\value.cpp">
-      <Filter>Header Files\json</Filter>
-    </ClCompile>
-    <ClCompile Include="include\asago-json\ValuePrinter.cpp">
-      <Filter>Header Files\json</Filter>
-    </ClCompile>
-    <ClCompile Include="include\asago-json\lex.yy.cpp">
-      <Filter>Header Files\json</Filter>
     </ClCompile>
     <ClCompile Include="include\imgui\imgui.cpp">
       <Filter>Header Files\imgui</Filter>
@@ -93,6 +72,39 @@
     <ClCompile Include="include\imgui\backends\imgui_impl_opengl3.cpp">
       <Filter>Header Files\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="include\Asago\http.cpp">
+      <Filter>Header Files\json</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Asago\parser.cpp">
+      <Filter>Header Files\json</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Asago\toks.cpp">
+      <Filter>Header Files\json</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Asago\util.cpp">
+      <Filter>Header Files\json</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Asago\value.cpp">
+      <Filter>Header Files\json</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Asago\ValuePrinter.cpp">
+      <Filter>Header Files\json</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Asago\lex.yy.cpp">
+      <Filter>Header Files\json</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CountryData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Render.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderUtil.h">
@@ -113,10 +125,22 @@
     <ClInclude Include="MathUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Demo.h">
+    <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CountryData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

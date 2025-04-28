@@ -1,14 +1,16 @@
 #version 330 core
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
+
 
 in vec2 TexCoord;
 
 // texture samplers
-uniform sampler2D texture1;
-uniform sampler2D texture2;
+uniform sampler2D texture;
 
 void main()
 {
 	// linearly interpolate between both textures (80% container, 20% awesomeface)
-	FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+	FragColor = vec4(1,1,0,1);
+	BrightColor = vec4(1.0, 1.0, 0.0, 1.0);
 }

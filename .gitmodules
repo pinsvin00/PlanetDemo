@@ -1,3 +1,6 @@
 [submodule "EarthProject/src/asago-json"]
 	path = EarthProject/src/asago-json
 	url = https://github.com/pinsvin00/Asago.git
+[submodule "EarthProject/include/Asago"]
+	path = EarthProject/include/Asago
+	url = https://github.com/pinsvin00/Asago.git

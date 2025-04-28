@@ -1944,7 +1944,7 @@ struct ImGuiLocEntry
 // Macros used by Recoverable Error handling
 // - Only dispatch error if _EXPR: evaluate as assert (similar to an assert macro).
 // - The message will always be a string literal, in order to increase likelihood of being display by an assert handler.
-// - See 'Demo->Configuration->Error Handling' and ImGuiIO definitions for details on error handling.
+// - See 'Renderer->Configuration->Error Handling' and ImGuiIO definitions for details on error handling.
 // - Read https://github.com/ocornut/imgui/wiki/Error-Handling for details on error handling.
 #ifndef IM_ASSERT_USER_ERROR
 #define IM_ASSERT_USER_ERROR(_EXPR,_MSG)    do { if (!(_EXPR) && ImGui::ErrorLog(_MSG)) { IM_ASSERT((_EXPR) && _MSG); } } while (0)    // Recoverable User Error

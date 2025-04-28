@@ -338,8 +338,8 @@ namespace ImGui
     IMGUI_API void          Render();                                   // ends the Dear ImGui frame, finalize the draw data. You can then get call GetDrawData().
     IMGUI_API ImDrawData*   GetDrawData();                              // valid after Render() and until the next call to NewFrame(). this is what you have to render.
 
-    // Demo, Debug, Information
-    IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create Demo window. demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
+    // Renderer, Debug, Information
+    IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create Renderer window. demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
     IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create Metrics/Debugger window. display Dear ImGui internals: windows, draw commands, various internal state, etc.
     IMGUI_API void          ShowDebugLogWindow(bool* p_open = NULL);    // create Debug Log window. display a simplified log of important dear imgui events.
     IMGUI_API void          ShowIDStackToolWindow(bool* p_open = NULL); // create Stack Tool window. hover items with mouse to query information about the source of their unique ID.
@@ -683,7 +683,7 @@ namespace ImGui
     // Multi-selection system for Selectable(), Checkbox(), TreeNode() functions [BETA]
     // - This enables standard multi-selection/range-selection idioms (CTRL+Mouse/Keyboard, SHIFT+Mouse/Keyboard, etc.) in a way that also allow a clipper to be used.
     // - ImGuiSelectionUserData is often used to store your item index within the current view (but may store something else).
-    // - Read comments near ImGuiMultiSelectIO for instructions/details and see 'Demo->Widgets->Selection State & Multi-Select' for demo.
+    // - Read comments near ImGuiMultiSelectIO for instructions/details and see 'Renderer->Widgets->Selection State & Multi-Select' for demo.
     // - TreeNode() is technically supported but... using this correctly is more complicated. You need some sort of linear/random access to your tree,
     //   which is suited to advanced trees setups already implementing filters and clipper. We will work simplifying the current demo.
     // - 'selection_size' and 'items_count' parameters are optional and used by a few features. If they are costly for you to compute, you may avoid them.
@@ -793,7 +793,7 @@ namespace ImGui
 
     // Tables
     // - Full-featured replacement for old Columns API.
-    // - See Demo->Tables for demo code. See top of imgui_tables.cpp for general commentary.
+    // - See Renderer->Tables for demo code. See top of imgui_tables.cpp for general commentary.
     // - See ImGuiTableFlags_ and ImGuiTableColumnFlags_ enums for a description of available flags.
     // The typical call flow is:
     // - 1. Call BeginTable(), early out if returning false.
@@ -916,7 +916,7 @@ namespace ImGui
 
     // Item/Widgets Utilities and Query Functions
     // - Most of the functions are referring to the previous Item that has been submitted.
-    // - See Demo Window under "Widgets->Querying Status" for an interactive visualization of most of those functions.
+    // - See Renderer Window under "Widgets->Querying Status" for an interactive visualization of most of those functions.
     IMGUI_API bool          IsItemHovered(ImGuiHoveredFlags flags = 0);                         // is the last item hovered? (and usable, aka not blocked by a popup, etc.). See ImGuiHoveredFlags for more options.
     IMGUI_API bool          IsItemActive();                                                     // is the last item active? (e.g. button being held, text field being edited. This will continuously return true while holding mouse button on an item. Items that don't interact will always return false)
     IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
@@ -1039,7 +1039,7 @@ namespace ImGui
     IMGUI_API const char*   SaveIniSettingsToMemory(size_t* out_ini_size = NULL);               // return a zero-terminated string with the .ini data which you can save by your own mean. call when io.WantSaveIniSettings is set, then save data by your own mean and clear io.WantSaveIniSettings.
 
     // Debug Utilities
-    // - Your main debugging friend is the ShowMetricsWindow() function, which is also accessible from Demo->Tools->Metrics Debugger
+    // - Your main debugging friend is the ShowMetricsWindow() function, which is also accessible from Renderer->Tools->Metrics Debugger
     IMGUI_API void          DebugTextEncoding(const char* text);
     IMGUI_API void          DebugFlashStyleColor(ImGuiCol idx);
     IMGUI_API void          DebugStartItemPicker();
@@ -1109,7 +1109,7 @@ enum ImGuiWindowFlags_
 // Flags for ImGui::BeginChild()
 // (Legacy: bit 0 must always correspond to ImGuiChildFlags_Borders to be backward compatible with old API using 'bool border = false'.
 // About using AutoResizeX/AutoResizeY flags:
-// - May be combined with SetNextWindowSizeConstraints() to set a min/max size for each axis (see "Demo->Child->Auto-resize with Constraints").
+// - May be combined with SetNextWindowSizeConstraints() to set a min/max size for each axis (see "Renderer->Child->Auto-resize with Constraints").
 // - Size measurement for a given axis is only performed when the child window is within visible boundaries, or is just appearing.
 //   - This allows BeginChild() to return false when not within boundaries (e.g. when scrolling), which is more optimal. BUT it won't update its auto-size while clipped.
 //     While not perfect, it is a better default behavior as the always-on performance gain is more valuable than the occasional "resizing after becoming visible again" glitch.
@@ -2270,7 +2270,7 @@ struct ImGuiIO
     bool        ConfigNavCursorVisibleAlways;   // = false          // Navigation cursor is always visible.
 
     // Miscellaneous options
-    // (you can visualize and interact with all options in 'Demo->Configuration')
+    // (you can visualize and interact with all options in 'Renderer->Configuration')
     bool        MouseDrawCursor;                // = false          // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor). Cannot be easily renamed to 'io.ConfigXXX' because this is frequently used by backend implementations.
     bool        ConfigMacOSXBehaviors;          // = defined(__APPLE__) // Swap Cmd<>Ctrl keys + OS X style text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl.
     bool        ConfigInputTrickleEventQueue;   // = true           // Enable input queue trickling: some types of events submitted during the same frame (e.g. button down + up) will be spread over multiple frames, improving interactions with low framerates.
@@ -2810,7 +2810,7 @@ struct ImColor
 
 // Multi-selection system
 // Documentation at: https://github.com/ocornut/imgui/wiki/Multi-Select
-// - Refer to 'Demo->Widgets->Selection State & Multi-Select' for demos using this.
+// - Refer to 'Renderer->Widgets->Selection State & Multi-Select' for demos using this.
 // - This system implements standard multi-selection idioms (CTRL+Mouse/Keyboard, SHIFT+Mouse/Keyboard, etc)
 //   with support for clipper (skipping non-visible items), box-select and many other details.
 // - Selectable(), Checkbox() are supported but custom widgets may use it as well.
@@ -2869,7 +2869,7 @@ enum ImGuiMultiSelectFlags_
 
 // Main IO structure returned by BeginMultiSelect()/EndMultiSelect().
 // This mainly contains a list of selection requests.
-// - Use 'Demo->Tools->Debug Log->Selection' to see requests as they happen.
+// - Use 'Renderer->Tools->Debug Log->Selection' to see requests as they happen.
 // - Some fields are only useful if your list is dynamic and allows deletion (getting post-deletion focus/state right is shown in the demo)
 // - Below: who reads/writes each fields? 'r'=read, 'w'=write, 'ms'=multi-select code, 'app'=application/user code.
 struct ImGuiMultiSelectIO
@@ -3391,7 +3391,7 @@ struct ImFontAtlas
 
     // Build atlas, retrieve pixel data.
     // User is in charge of copying the pixels into graphics memory (e.g. create a texture with your engine). Then store your texture handle with SetTexID().
-    // The pitch is always = Width * BytesPerPixels (1 or 4)
+    // The mPitch is always = Width * BytesPerPixels (1 or 4)
     // Building in RGBA32 format is provided for convenience and compatibility, but note that unless you manually manipulate or copy color data into
     // the texture (e.g. when using the AddCustomRect*** api), then the RGB pixels emitted will always be white (~75% of memory/bandwidth waste.
     IMGUI_API bool              Build();                    // Build pixels data. This is called automatically for you by the GetTexData*** functions.

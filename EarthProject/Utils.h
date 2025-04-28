@@ -1,5 +1,4 @@
 #pragma once
-#include <glm/common.hpp>
 #include <string>
 
 namespace Utils
@@ -11,54 +10,18 @@ namespace Utils
 
     namespace Paths
     {
-        const std::string ProjDir = "C:\\Users\\Michal\\source\\repos\\EarthProject\\EarthProject\\";
+        const std::string ProjDir = "C:\\Users\\pnsv0\\source\\repos\\PlanetDemo\\EarthProject\\";
     }
     namespace Render
     {
         uint32_t LoadTexture(const char* pathToTexture, bool shouldImageBeFlipped, ImageData* out = nullptr);
-        const float CubeVertices[] = {
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-        };
+        static inline unsigned int cubeVAO = 0;
+        static inline unsigned int quadVAO = 0;
+        static inline unsigned int quadVBO = 0;
+        static inline unsigned int cubeVbO = 0;
+        void renderQuad();
+        void renderCube();
+        void SetupOpenGL();
     }
 }
 

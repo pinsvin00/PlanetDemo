@@ -156,7 +156,7 @@ Index of this file:
 // About clipping/culling of Rows in Tables:
 // - For large numbers of rows, it is recommended you use ImGuiListClipper to submit only visible rows.
 //   ImGuiListClipper is reliant on the fact that rows are of equal height.
-//   See 'Demo->Tables->Vertical Scrolling' or 'Demo->Tables->Advanced' for a demo of using the clipper.
+//   See 'Renderer->Tables->Vertical Scrolling' or 'Renderer->Tables->Advanced' for a demo of using the clipper.
 // - Note that auto-resizing columns don't play well with using the clipper.
 //   By default a table with _ScrollX but without _Resizable will have column auto-resize.
 //   So, if you want to use the clipper, make sure to either enable _Resizable, either setup columns width explicitly with _WidthFixed.
@@ -3061,7 +3061,7 @@ float ImGui::TableGetHeaderAngledMaxLabelWidth()
 // [Public] This is a helper to output TableHeader() calls based on the column names declared in TableSetupColumn().
 // The intent is that advanced users willing to create customized headers would not need to use this helper
 // and can create their own! For example: TableHeader() may be preceded by Checkbox() or other custom widgets.
-// See 'Demo->Tables->Custom headers' for a demonstration of implementing a custom version of this.
+// See 'Renderer->Tables->Custom headers' for a demonstration of implementing a custom version of this.
 // This code is intentionally written to not make much use of internal functions, to give you better direction
 // if you need to write your own.
 // FIXME-TABLE: TableOpenContextMenu() and TableGetHeaderRowHeight() are not public.

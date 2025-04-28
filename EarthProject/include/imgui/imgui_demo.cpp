@@ -48,7 +48,7 @@
 //-----------------------------------------
 // ABOUT THE CODING STYLE OF OUR DEMO CODE
 //-----------------------------------------
-// The Demo code in this file is designed to be easy to copy-and-paste into your application!
+// The Renderer code in this file is designed to be easy to copy-and-paste into your application!
 // Because of this:
 // - We never omit the ImGui:: prefix when calling functions, even though most code here is in the same namespace.
 // - We try to declare static variables in the local scope, as close as possible to the code using them.
@@ -70,7 +70,7 @@ Index of this file:
 
 // [SECTION] Forward Declarations
 // [SECTION] Helpers
-// [SECTION] Demo Window / ShowDemoWindow()
+// [SECTION] Renderer Window / ShowDemoWindow()
 // [SECTION] DemoWindowMenuBar()
 // [SECTION] Helpers: ExampleTreeNode, ExampleMemberInfo (for use by Property Editor & Multi-Select demos)
 // [SECTION] DemoWindowWidgetsBasic()
@@ -290,7 +290,7 @@ void*                               GImGuiDemoMarkerCallbackUserData = NULL;
 #define IMGUI_DEMO_MARKER(section)  do { if (GImGuiDemoMarkerCallback != NULL) GImGuiDemoMarkerCallback(__FILE__, __LINE__, section, GImGuiDemoMarkerCallbackUserData); } while (0)
 
 //-----------------------------------------------------------------------------
-// [SECTION] Demo Window / ShowDemoWindow()
+// [SECTION] Renderer Window / ShowDemoWindow()
 //-----------------------------------------------------------------------------
 
 // Data to be shared across different functions of the demo.
@@ -401,7 +401,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 650, main_viewport->WorkPos.y + 20), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
 
-    // Main body of the Demo window starts here.
+    // Main body of the Renderer window starts here.
     if (!ImGui::Begin("Dear ImGui Demo", p_open, window_flags))
     {
         // Early out if the window is collapsed, as an optimization.
@@ -409,7 +409,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
         return;
     }
 
-    // Most "big" widgets share a common width settings by default. See 'Demo->Layout->Widgets Width' for details.
+    // Most "big" widgets share a common width settings by default. See 'Renderer->Layout->Widgets Width' for details.
     ImGui::PushItemWidth(ImGui::GetFontSize() * -12);           // e.g. Leave a fixed amount of width for labels (by passing a negative value), the rest goes to widgets.
     //ImGui::PushItemWidth(-ImGui::GetWindowWidth() * 0.35f);   // e.g. Use 2/3 of the space for widgets and 1/3 for labels (right align)
 
@@ -847,7 +847,7 @@ static void DemoWindowWidgetsBasic()
 
         // Use AlignTextToFramePadding() to align text baseline to the baseline of framed widgets elements
         // (otherwise a Text+SameLine+Button sequence will have the text a little too high by default!)
-        // See 'Demo->Layout->Text Baseline Alignment' for details.
+        // See 'Renderer->Layout->Text Baseline Alignment' for details.
         ImGui::AlignTextToFramePadding();
         ImGui::Text("Hold to repeat:");
         ImGui::SameLine();
@@ -1525,7 +1525,7 @@ static void DemoWindowWidgetsDragAndDrop()
             // ColorEdit widgets automatically act as drag source and drag target.
             // They are using standardized payload strings IMGUI_PAYLOAD_TYPE_COLOR_3F and IMGUI_PAYLOAD_TYPE_COLOR_4F
             // to allow your own widgets to use colors in their drag and drop interaction.
-            // Also see 'Demo->Widgets->Color/Picker Widgets->Palette' demo.
+            // Also see 'Renderer->Widgets->Color/Picker Widgets->Palette' demo.
             HelpMarker("You can drag from the color squares.");
             static float col1[3] = { 1.0f, 0.0f, 0.2f };
             static float col2[4] = { 0.4f, 0.7f, 0.0f, 0.5f };
@@ -3298,7 +3298,7 @@ static void DemoWindowWidgetsSelectionAndMultiSelect(ImGuiDemoWindowData* demo_d
                             ImGui::EndPopup();
                         }
 
-                        // Demo content within a table
+                        // Renderer content within a table
                         if (show_in_table)
                         {
                             ImGui::TableNextColumn();
@@ -3446,7 +3446,7 @@ static void DemoWindowWidgetsTabs()
 
             if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
             {
-                // Demo a Leading TabItemButton(): click the "?" button to open a menu
+                // Renderer a Leading TabItemButton(): click the "?" button to open a menu
                 if (show_leading_button)
                     if (ImGui::TabItemButton("?", ImGuiTabItemFlags_Leading | ImGuiTabItemFlags_NoTooltip))
                         ImGui::OpenPopup("MyHelpMenu");
@@ -3456,7 +3456,7 @@ static void DemoWindowWidgetsTabs()
                     ImGui::EndPopup();
                 }
 
-                // Demo Trailing Tabs: click the "+" button to add a new tab.
+                // Renderer Trailing Tabs: click the "+" button to add a new tab.
                 // (In your app you may want to use a font icon instead of the "+")
                 // We submit it before the regular tabs, but thanks to the ImGuiTabItemFlags_Trailing flag it will always appear at the end.
                 if (show_trailing_button)
@@ -4273,7 +4273,7 @@ static void DemoWindowLayout()
         //   You can also call SetNextWindowPos() to position the child window. The parent window will effectively
         //   layout from this position.
         // - Using ImGui::GetItemRectMin/Max() to query the "item" state (because the child window is an item from
-        //   the POV of the parent window). See 'Demo->Querying Status (Edited/Active/Hovered etc.)' for details.
+        //   the POV of the parent window). See 'Renderer->Querying Status (Edited/Active/Hovered etc.)' for details.
         {
             static int offset_x = 0;
             static bool override_bg_color = true;
@@ -4770,7 +4770,7 @@ static void DemoWindowLayout()
         }
         ImGui::PopID();
 
-        // Miscellaneous Horizontal Scrolling Demo
+        // Miscellaneous Horizontal Scrolling Renderer
         IMGUI_DEMO_MARKER("Layout/Scrolling/Horizontal (more)");
         HelpMarker(
             "Horizontal scrolling for a window is enabled via the ImGuiWindowFlags_HorizontalScrollbar flag.\n\n"
@@ -7921,7 +7921,7 @@ static void DemoWindowInputs()
 
 //-----------------------------------------------------------------------------
 // [SECTION] About Window / ShowAboutWindow()
-// Access from Dear ImGui Demo -> Tools -> About
+// Access from Dear ImGui Renderer -> Tools -> About
 //-----------------------------------------------------------------------------
 
 void ImGui::ShowAboutWindow(bool* p_open)
@@ -8093,7 +8093,7 @@ void ImGui::ShowAboutWindow(bool* p_open)
 // Forward declare ShowFontAtlas() which isn't worth putting in public API yet
 namespace ImGui { IMGUI_API void ShowFontAtlas(ImFontAtlas* atlas); }
 
-// Demo helper function to select among loaded fonts.
+// Renderer helper function to select among loaded fonts.
 // Here we use the regular BeginCombo()/EndCombo() api which is the more flexible one.
 void ImGui::ShowFontSelector(const char* label)
 {
@@ -8120,7 +8120,7 @@ void ImGui::ShowFontSelector(const char* label)
         "- If you need to add/remove fonts at runtime (e.g. for DPI change), do it before calling NewFrame().");
 }
 
-// Demo helper function to select among default colors. See ShowStyleEditor() for more advanced options.
+// Renderer helper function to select among default colors. See ShowStyleEditor() for more advanced options.
 // Here we use the simplified Combo() api that packs items into a single literal string.
 // Useful for quick combo boxes where the choices are known locally.
 bool ImGui::ShowStyleSelector(const char* label)
@@ -10671,7 +10671,7 @@ void ShowExampleAppAssetsBrowser(bool* p_open)
     assets_browser.Draw("Example: Assets Browser", p_open);
 }
 
-// End of Demo code
+// End of Renderer code
 #else
 
 void ImGui::ShowAboutWindow(bool*) {}

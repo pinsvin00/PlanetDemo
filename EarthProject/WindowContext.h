@@ -7,8 +7,8 @@ class WindowContext
 {
 public:
 	static std::shared_ptr<WindowContext> GetInstance();
-	int mXSize = 800;
-	int mYSize = 600;
+	int mXSize = 1600;
+	int mYSize = 900;
 	GLFWwindow* mWindow = nullptr;
 };
 

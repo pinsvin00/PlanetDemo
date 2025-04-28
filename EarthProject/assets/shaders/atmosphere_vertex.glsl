@@ -6,21 +6,15 @@ layout (location = 2) in vec2 aTexCoord;
 out vec2 TexCoord;
 out vec3 Normal;
 out vec3 FragPos;
-out vec3 SpherePos;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform sampler2D heightMap;
 
 void main()
 {
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
     Normal = mat3(transpose(inverse(model))) * aNormal;
-
-	vec4 heightData = texture(heightMap, aTexCoord);
-	float r = heightData.x;
-	vec3 res = aPos + aNormal * r * 0.02;
-	FragPos = vec3(model * vec4(res, 1.0));
-	gl_Position = projection * view * model * vec4(res, 1.0f);
+    FragPos = vec3(model * vec4(aPos, 1.0));
+	gl_Position = projection * view * model * vec4(aPos, 1.0f);
 }

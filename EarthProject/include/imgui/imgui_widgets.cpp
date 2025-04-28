@@ -2616,7 +2616,7 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
 }
 
 // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a Drag widget, p_min and p_max are optional.
-// Read code of e.g. DragFloat(), DragInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. DragFloat(), DragInt() etc. or examples in 'Renderer->Widgets->Data Types' to understand how to use this function directly.
 bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float v_speed, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -3220,7 +3220,7 @@ bool ImGui::SliderBehavior(const ImRect& bb, ImGuiID id, ImGuiDataType data_type
 }
 
 // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a slider, they are all required.
-// Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Renderer->Widgets->Data Types' to understand how to use this function directly.
 bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -3688,7 +3688,7 @@ void ImGui::SetNextItemRefVal(ImGuiDataType data_type, void* p_data)
 }
 
 // Note: p_data, p_step, p_step_fast are _pointers_ to a memory address holding the data. For an Input widget, p_step and p_step_fast are optional.
-// Read code of e.g. InputFloat(), InputInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. InputFloat(), InputInt() etc. or examples in 'Renderer->Widgets->Data Types' to understand how to use this function directly.
 bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_step, const void* p_step_fast, const char* format, ImGuiInputTextFlags flags)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -8183,7 +8183,7 @@ static void ImGuiSelectionBasicStorage_BatchFinish(ImGuiSelectionBasicStorage* s
 }
 
 // Apply requests coming from BeginMultiSelect() and EndMultiSelect().
-// - Enable 'Demo->Tools->Debug Log->Selection' to see selection requests as they happen.
+// - Enable 'Renderer->Tools->Debug Log->Selection' to see selection requests as they happen.
 // - Honoring SetRange requests requires that you can iterate/interpolate between RangeFirstItem and RangeLastItem.
 //   - In this demo we often submit indices to SetNextItemSelectionUserData() + store the same indices in persistent selection.
 //   - Your code may do differently. If you store pointers or objects ID in ImGuiSelectionUserData you may need to perform

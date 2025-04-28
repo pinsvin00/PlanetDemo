@@ -8294,7 +8294,7 @@ void ImGui::SetNextWindowSize(const ImVec2& size, ImGuiCond cond)
 // For each axis:
 // - Use 0.0f as min or FLT_MAX as max if you don't want limits, e.g. size_min = (500.0f, 0.0f), size_max = (FLT_MAX, FLT_MAX) sets a minimum width.
 // - Use -1 for both min and max of same axis to preserve current size which itself is a constraint.
-// - See "Demo->Examples->Constrained-resizing window" for examples.
+// - See "Renderer->Examples->Constrained-resizing window" for examples.
 void ImGui::SetNextWindowSizeConstraints(const ImVec2& size_min, const ImVec2& size_max, ImGuiSizeCallback custom_callback, void* custom_callback_user_data)
 {
     ImGuiContext& g = *GImGui;
@@ -11495,7 +11495,7 @@ ImGuiWindow* ImGui::GetTopMostPopupModal()
     return NULL;
 }
 
-// See Demo->Stacked Modal to confirm what this is for.
+// See Renderer->Stacked Modal to confirm what this is for.
 ImGuiWindow* ImGui::GetTopMostAndVisiblePopupModal()
 {
     ImGuiContext& g = *GImGui;
