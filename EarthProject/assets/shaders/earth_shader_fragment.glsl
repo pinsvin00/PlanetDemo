@@ -41,9 +41,9 @@ void main()
 	vec4 textureRGBA = texture(redPlanetMap, TexCoord);
 	vec4 textureTerrainRGBA = texture(terrainMapTexture, TexCoord);
 
-	vec4 halfResult;
-
+	vec4 halfResult = vec4(0,1,0,1);
 	bool isWater = false;
+	bool isBorder = false;
 	int saturation = int(textureRGBA.x * 255);
 	if(saturation == 129)
 	{
@@ -53,20 +53,27 @@ void main()
 	{
 		halfResult = vec4(0,0.2,1,1);
 	}
-	else if(textureRGBA.x > 0.1)
+	else if(saturation <= 33)
 	{
-		//water basin
-		isWater = true;
-		halfResult = vec4(0,0,1,0.82);
+		isBorder = true;
 	}
-	else
+	else if(saturation == 255)
 	{
 		halfResult = vec4(0,1,0,1);
+	}
+	else if(saturation == 71)
+	{
+		isWater = true;
+		halfResult = vec4(0,0,1,0.82);
 	}
 
 	if(displayMode == 0)
 	{
-		if(!isWater)
+		if(isBorder)
+		{
+			FragColor = vec4(0,0,0,1);
+		}
+		else if(!isWater)
 		{
 			FragColor = vec4(ambient + diffuse, 1.0) * mix(halfResult, textureTerrainRGBA, 0.0);
 		}

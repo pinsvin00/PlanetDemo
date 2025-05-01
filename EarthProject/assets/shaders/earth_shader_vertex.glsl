@@ -20,7 +20,7 @@ void main()
 
 	vec4 heightData = texture(heightMap, aTexCoord);
 	float r = heightData.x;
-	vec3 res = aPos + aNormal * r * 0.02;
+	vec3 res = aPos + aNormal * r * 0.01;
 	FragPos = vec3(model * vec4(res, 1.0));
 	gl_Position = projection * view * model * vec4(res, 1.0f);
 }

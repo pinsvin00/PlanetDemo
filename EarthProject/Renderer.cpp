@@ -66,6 +66,11 @@ void Renderer::RenderCurrentScene()
     ImGui::Text(std::format("min zoom = {}", mMinZoomValue).c_str());
     ImGui::InputInt("Graphics mode", &mDisplayMode);
     ImGui::Checkbox("Debug render sun", &this->debugRenderSunPlaceholder);
+    mRightMouseButtonPressed = glfwGetMouseButton(windowCtx->mWindow, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+
+    //auto val = TrackMousePositionFromSphereToTexture(windowCtx->mWindow, mEarthPlanet.mRadius, mProjection, mView);
+    //ImGui::Text(std::format("x texture = {}", texturePosition.x).c_str());
+    //ImGui::Text(std::format("y texture = {}", texturePosition.y).c_str());
 
     //dt
     float currentFrame = static_cast<float>(glfwGetTime());
@@ -90,7 +95,8 @@ void Renderer::RenderCurrentScene()
         if (textureCoordinates.has_value())
         {
             lastTimeMousePressedToRecolor = currentFrame;
-            mEarthPlanet.TryToCreateFloodFillMap(mEarthPlanet.mStatesImgData, mEarthPlanet.mLandMassImgData, 
+            std::cout << textureCoordinates->x << " " << textureCoordinates->y << std::endl;
+            mEarthPlanet.TryToCreateFloodFillMap(mEarthPlanet.mStatesImgData, mEarthPlanet.mStatesImgData,
                 glm::vec2((int)textureCoordinates->x, (int)textureCoordinates->y), glm::vec3(__debug_countryId)
             );
         }
@@ -256,7 +262,7 @@ void Renderer::RenderPlanet()
     
     glBindVertexArray(mEarthPlanet.VAO);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, mEarthPlanet.mWaterLandTexture);
+    glBindTexture(GL_TEXTURE_2D, mEarthPlanet.provinceTexture);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, mEarthPlanet.heightMapTexture);
     glActiveTexture(GL_TEXTURE2);
@@ -369,7 +375,8 @@ std::optional<glm::vec2> Renderer::TrackMousePositionFromSphereToTexture(GLFWwin
     //Convert spherical coordinates to the x,y both ranging (0.0f,1.0f)
     double xf = 1.0f - ((theta) / (2 * glm::pi<float>()));
     double yf = (phi) / glm::pi<float>();
-    return glm::vec2(xf * mEarthPlanet.mLandMassImgData.w, yf * mEarthPlanet.mLandMassImgData.h);
+
+    return glm::vec2(xf * mEarthPlanet.mStatesImgData.w, yf * mEarthPlanet.mStatesImgData.h);
 }
 
 //STATIC FUNCTIONS, RELATED TO GLFW
@@ -387,7 +394,6 @@ void Renderer::MouseCallback(GLFWwindow* window, double xposIn, double yposIn)
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    demo->mRightMouseButtonPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
         if (demo->firstMouse)

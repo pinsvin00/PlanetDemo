@@ -11,15 +11,9 @@ void Planet::TryToCreateFloodFillMap(Utils::ImageData& imgDataIn, Utils::ImageDa
     };
     unsigned char* ptr = getPixelAt(imgDataIn, (int)startPoint.x, (int)startPoint.y);
     unsigned char startR = ptr[0];
-    unsigned char startG = ptr[1];
-    unsigned char startB = ptr[2];
 
-    auto evaluatePixelForProvincesColoredMap = [startR, startG, startB](unsigned char* pixel) {
-        //Make this function a little bit better, let's try to calculate the mean of 4 neighboring pixels and then try to use some tolerance.
-        unsigned char r = pixel[0];
-        unsigned char g = pixel[1];
-        unsigned char b = pixel[2];
-        return startR == r && startG == g && startB == b;
+    auto evaluatePixelForProvincesColoredMap = [startR](unsigned char* pixel) {
+        return *pixel > 200;
     };
     auto isInsideTheTexutre = [](const Utils::ImageData& data, int x, int y) {
         return x >= 0 && x < data.w && y >= 0 && y < data.h;
@@ -36,6 +30,8 @@ void Planet::TryToCreateFloodFillMap(Utils::ImageData& imgDataIn, Utils::ImageDa
         glm::vec2(0,-1),
     };
     
+    int i = 0;
+
     while (!queueOfPoints.empty())
     {
         glm::vec2 point = queueOfPoints.front();
@@ -52,11 +48,12 @@ void Planet::TryToCreateFloodFillMap(Utils::ImageData& imgDataIn, Utils::ImageDa
             {
                 visited[pointNew.y][pointNew.x] = true;
                 queueOfPoints.push(pointNew);
+                i++;
             }
         }
     }
 
-    glBindTexture(GL_TEXTURE_2D, mWaterLandTexture);
+    glBindTexture(GL_TEXTURE_2D, this->provinceTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, imgDataOut.w, imgDataOut.h, 0, GL_RED, GL_UNSIGNED_BYTE, imgDataOut.data);
 
     GLenum error = glGetError();
@@ -109,15 +106,13 @@ bool IsPointInsidePolygon(const glm::vec2& point, const std::vector<glm::vec2>& 
 
 void Planet::SetupRenderData()
 {
-    mWaterLandTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/earthmap_bw.jpg").c_str(), false, &mLandMassImgData);
-    provinceTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/provincesmap2.png").c_str(), false, &mStatesImgData);
-    TryToCreateFloodFillMap(mStatesImgData, mLandMassImgData, glm::vec2(2011, 480), glm::vec3(129));
-
+    mWaterLandTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/earthmap_bw.png").c_str(), false, &mLandMassImgData);
+    provinceTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/mapka.png").c_str(), false, &mStatesImgData);
     textureBottom = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/dry_riverbed.jpg").c_str(), false);
     heightMapTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/gebco_08_rev_elev_low_res.png").c_str(), false);
     terrianMapTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/earthmap_terrain.jpg").c_str(), false);
     dudvMapTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/dudv.png").c_str(), false);
-    waterTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/water.jpg").c_str(), false);
+    waterTexture = Utils::Render::LoadTexture((Utils::Paths::ProjDir + "assets/textures/water.png").c_str(), false);
 
 
     //bind VAO, VBO, send the data to VBO

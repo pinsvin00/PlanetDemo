@@ -32,6 +32,7 @@ private:
 
 	std::shared_ptr<WindowContext> windowCtx;
 
+	glm::vec2 texturePosition;
 	Planet mEarthPlanet;
 
 	//Projection and view matrices
